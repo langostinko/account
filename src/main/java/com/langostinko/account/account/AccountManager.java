@@ -13,7 +13,10 @@ public class AccountManager {
         return account;
     }
 
-    public void CreateAccount(String id) throws AccountAlreadyExistsException {
+    public void Create(String id) throws AccountAlreadyExistsException, AccountEmptyNameException {
+        if (null == id || "" == id) {
+            throw new AccountEmptyNameException();
+        }
         if (Accounts_.containsKey(id)) {
             throw new AccountAlreadyExistsException();
         } else {

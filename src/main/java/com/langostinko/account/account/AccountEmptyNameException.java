@@ -1,4 +1,4 @@
 package com.langostinko.account.account;
 
-public class AccountEmptyNameException extends Exception {
+class AccountEmptyNameException extends Exception {
 }

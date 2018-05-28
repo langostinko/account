@@ -13,7 +13,7 @@ public class AccountManagerTest {
         assertEquals(0, manager.GetCount(id));
     }
     @Test(expected = AccountAlreadyExistsException.class)
-    public void CreateAccountAlreadyExists() throws AccountAlreadyExistsException, AccountNotFoundException, AccountEmptyNameException {
+    public void CreateAccountAlreadyExists() throws AccountAlreadyExistsException, AccountEmptyNameException {
         AccountManager manager = new AccountManager();
         String id = "some_id";
         manager.Create(id);

@@ -14,7 +14,7 @@ public class AccountManager {
     }
 
     public void Create(String id) throws AccountAlreadyExistsException, AccountEmptyNameException {
-        if (null == id || "" == id) {
+        if (null == id || "".equals(id)) {
             throw new AccountEmptyNameException();
         }
         if (Accounts_.containsKey(id)) {

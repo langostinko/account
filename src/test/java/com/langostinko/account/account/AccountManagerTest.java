@@ -75,4 +75,19 @@ public class AccountManagerTest {
         assertEquals(50, manager.GetCount(from));
         assertEquals(63, manager.GetCount(to));
     }
+
+    @Test (timeout = 1000)
+    public void Performance() throws AccountAlreadyExistsException, AccountEmptyNameException, AccountNotFoundException, NotEnoughFundsException {
+        final int CNT = 1000;
+        AccountManager manager = new AccountManager();
+        for (int i = 0; i < CNT; ++i) {
+            String from = String.valueOf(i);
+            manager.Create(from);
+            manager.Add(from, CNT);
+            for (int j = 0; j < i; ++j) {
+                String to = String.valueOf(j);
+                manager.Transfer(from, to, 1);
+            }
+        }
+    }
 }

@@ -59,4 +59,35 @@ public class ServerTest {
         assertEquals("73", GetHTTPResponse("get_count?id=source"));
         assertEquals("69", GetHTTPResponse("get_count?id=destination"));
     }
+
+    @Test (timeout = 5000)
+    public void TransactionPerformance() throws IOException {
+        final int CNT = 100;
+        for (int i = 0; i < CNT; ++i) {
+            String from = String.valueOf(i);
+            assertEquals("ok", GetHTTPResponse("create?id=" + from));
+            assertEquals("ok", GetHTTPResponse("add?id=" + from + "&x=" + CNT));
+            for (int j = 0; j < i; ++j) {
+                String to = String.valueOf(j);
+                assertEquals("ok", GetHTTPResponse("transfer?from=" + from + "&to=" + to + "&x=1"));
+            }
+        }
+    }
+
+    /**
+     * Compare this test results with TransactionPerformance test
+     *   to check that most of performance depends on HTTP connection
+     *   (not on the transaction itself)
+    */
+    @Test (timeout = 5000)
+    public void PingPerformance() throws IOException {
+        final int CNT = 100;
+        for (int i = 0; i < CNT; ++i) {
+            assertEquals("pong", GetHTTPResponse("ping"));
+            assertEquals("pong", GetHTTPResponse("ping"));
+            for (int j = 0; j < i; ++j) {
+                assertEquals("pong", GetHTTPResponse("ping"));
+            }
+        }
+    }
 }

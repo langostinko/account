@@ -8,6 +8,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static junit.framework.TestCase.assertEquals;
 
@@ -60,6 +63,7 @@ public class ServerTest {
         assertEquals("69", GetHTTPResponse("get_count?id=destination"));
     }
 
+    // 100 * (100 + 1) / 2 = 5050 transfers
     @Test (timeout = 5000)
     public void TransactionPerformance() throws IOException {
         final int CNT = 100;
@@ -88,6 +92,45 @@ public class ServerTest {
             for (int j = 0; j < i; ++j) {
                 assertEquals("pong", GetHTTPResponse("ping"));
             }
+        }
+    }
+
+    // (8 * (8 + 1) / 2) * 140 = 5040 transfers
+    @Test (timeout = 5000)
+    public void ConcurrentTransactionPerformance() throws InterruptedException, IOException {
+        final int THREADS = 8;
+        final int CNT = 140;
+        for (int i = 0; i < THREADS; i++) {
+            String id = String.valueOf(i);
+            assertEquals("ok", GetHTTPResponse("create?id=" + id));
+            assertEquals("ok", GetHTTPResponse("add?id=" + id + "&x=" + THREADS * CNT));
+        }
+
+        ExecutorService service = Executors.newCachedThreadPool();
+        for(int i = 0; i < THREADS; i++) {
+            int finalI = i;
+            service.submit(() -> {
+                try {
+                    for (int k = 0; k < CNT; ++k) {
+                        String from = String.valueOf(finalI);
+                        for (int j = 0; j < finalI; ++j) {
+                            String to = String.valueOf(j);
+                            assertEquals("ok", GetHTTPResponse("transfer?from=" + from + "&to=" + to + "&x=1"));
+                        }
+                    }
+                } catch (IOException e) {
+                    System.err.println(e.getMessage());
+                    e.printStackTrace();
+                }
+            });
+        }
+        service.shutdown();
+        service.awaitTermination(5, TimeUnit.SECONDS);
+
+        for (int i = 0; i < THREADS; i++) {
+            String id = String.valueOf(i);
+            int cnt = Integer.parseInt(GetHTTPResponse("get_count?id=" + id));
+            assertEquals(THREADS * CNT + CNT * ((THREADS - i - 1) - i), cnt);
         }
     }
 }

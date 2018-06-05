@@ -69,11 +69,11 @@ public class ServerTest {
         final int CNT = 100;
         for (int i = 0; i < CNT; ++i) {
             String from = String.valueOf(i);
-            assertEquals("ok", GetHTTPResponse("create?id=" + from));
-            assertEquals("ok", GetHTTPResponse("add?id=" + from + "&x=" + CNT));
+            assertEquals("ok", GetHTTPResponse("create?id=perf" + from));
+            assertEquals("ok", GetHTTPResponse("add?id=perf" + from + "&x=" + CNT));
             for (int j = 0; j < i; ++j) {
                 String to = String.valueOf(j);
-                assertEquals("ok", GetHTTPResponse("transfer?from=" + from + "&to=" + to + "&x=1"));
+                assertEquals("ok", GetHTTPResponse("transfer?from=perf" + from + "&to=perf" + to + "&x=1"));
             }
         }
     }
@@ -102,8 +102,8 @@ public class ServerTest {
         final int CNT = 140;
         for (int i = 0; i < THREADS; i++) {
             String id = String.valueOf(i);
-            assertEquals("ok", GetHTTPResponse("create?id=" + id));
-            assertEquals("ok", GetHTTPResponse("add?id=" + id + "&x=" + THREADS * CNT));
+            assertEquals("ok", GetHTTPResponse("create?id=cperf" + id));
+            assertEquals("ok", GetHTTPResponse("add?id=cperf" + id + "&x=" + THREADS * CNT));
         }
 
         ExecutorService service = Executors.newCachedThreadPool();
@@ -115,7 +115,7 @@ public class ServerTest {
                         String from = String.valueOf(finalI);
                         for (int j = 0; j < finalI; ++j) {
                             String to = String.valueOf(j);
-                            assertEquals("ok", GetHTTPResponse("transfer?from=" + from + "&to=" + to + "&x=1"));
+                            assertEquals("ok", GetHTTPResponse("transfer?from=cperf" + from + "&to=cperf" + to + "&x=1"));
                         }
                     }
                 } catch (IOException e) {
@@ -129,7 +129,7 @@ public class ServerTest {
 
         for (int i = 0; i < THREADS; i++) {
             String id = String.valueOf(i);
-            int cnt = Integer.parseInt(GetHTTPResponse("get_count?id=" + id));
+            int cnt = Integer.parseInt(GetHTTPResponse("get_count?id=cperf" + id));
             assertEquals(THREADS * CNT + CNT * ((THREADS - i - 1) - i), cnt);
         }
     }
